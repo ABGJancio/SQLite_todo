@@ -22,11 +22,11 @@
         <th>Opis</th>
         <th>Czy zrobione?</th>
     </thead>
-    {% for todo in rows %}
+    {% for todo in todos %}
     <tr>
-        <td><a href="/todos/{{ loop.index }}">{{ todo[1] }}</a></td>
-        <td>{{ todo[2] }}</td>
-        <td>{{ todo[3] }}</td>
+        <td><a href="/todos/{{ loop.index }}">{{ todo.title }}</a></td>
+        <td>{{ todo.description }}</td>
+        <td>{{ todo.done }}</td>
     </tr>
     {% endfor %}
 </table>
