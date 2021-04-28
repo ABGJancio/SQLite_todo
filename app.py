@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from forms import TodoForm
-from models import todos
+from models import todos_db
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "nininini"
@@ -10,24 +10,24 @@ app.config["SECRET_KEY"] = "nininini"
 def todos_list():
     form = TodoForm()
     error = ""
-    todos=todos.select_all()
+    todos_all=todos_db.select_all()
 
     if request.method == "POST":
         if form.validate_on_submit():
-            todos.add_todo(form.data)
+            todos_db.add_todo(form.data)
         return redirect(url_for("todos_list"))
 
-    return render_template("todos.html", form=form, todos=todos, error=error)
+    return render_template("todos.html", form=form, todos=todos_all, error=error)
 
 
 @app.route("/todos/<int:todo_id>/", methods=["GET", "POST"])
 def todo_details(todo_id):
-    todo = todos.select_id(todo_id - 1)
+    todo = todos_db.select_id(todo_id - 1)
     form = TodoForm(data=todo)
 
     if request.method == "POST":
         if form.validate_on_submit():
-            todos.update(todos, todo_id - 1, form.data)
+            todos_db.update("todos", todo_id - 1, **form.data)
         return redirect(url_for("todos_list"))
 
     return render_template("todo.html", form=form, todo_id=todo_id)

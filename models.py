@@ -9,12 +9,12 @@ class TodosSQLite:
         self.db_file = db_file
 
     def __enter__(self):
-        # try:
+        try:
             self.conn = sqlite3.connect(self.db_file)
             self.cur = self.conn.cursor()
             return self.cur
-        # except Error:
-        #     self.conn = None
+        except Error:
+            self.conn = None
 
     def __exit__(self, type, value, traceback):
         self.conn.commit()
@@ -36,21 +36,27 @@ class TodosSQLite:
             with self as cur:
                 sql = f'SELECT * FROM todos'
                 cur.execute(sql)
-                rows = cur.fetchall()
-                return rows
+                row = cur.fetchall()
         except sqlite3.OperationalError as e:
-            print(e)    
+            print(e)
+        col = self.table_col()
+        rows = []
+        for i in range(len(row)):
+            item = dict(zip(col, row[i]))
+            rows.append(item)
+        return rows
         
     def select_id(self, id):
         try:
             with self as cur:
                 sql = f'SELECT * FROM todos WHERE id = {id}'
                 cur.execute(sql)
-                row = cur.fetchone()
-                return row
+                single_row = cur.fetchone()
         except sqlite3.OperationalError as e:
             print(e)    
-
+        col = self.table_col()
+        row = dict(zip(col, single_row))
+        return row
 
     def update(self, table, id, **kwargs):
         parameters = [f"{k} = ?" for k in kwargs]
@@ -88,18 +94,18 @@ class TodosSQLite:
         except sqlite3.OperationalError as e:
             print(e)
 
-# db_file = "./tasks_todo/todos.db"
-# todos = TodosSQLite(db_file)
+db_file = "./tasks_todo/todos.db"
+todos_db = TodosSQLite(db_file)
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    db_file = "./tasks_todo/todos.db"
-    todos = TodosSQLite(db_file)
-    # todos.create_table()
+#     # db_file = "./tasks_todo/todos.db"
+#     # todos = TodosSQLite(db_file)
+#     # todos.create_table()
 
-    # todo = ('Szczepienie', 'Zadzwonić do punktu szczepień i zarejestrować się', False)
-    # todos.add_todo(todo)
+#     # todo = ('Szczepienie', 'Zadzwonić do punktu szczepień i zarejestrować się', False)
+#     # todos.add_todo(todo)
 
-    # todos.update("todos", 3, done=True)
+#     # todos.update("todos", 3, done=True)
 
-    # print(todos.table_col())
+#     print(todos.select_id(2))
